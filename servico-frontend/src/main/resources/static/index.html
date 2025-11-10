@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo Microserviços + Cloud</title>
+    <style>
+        body { font-family: sans-serif; display: flex; gap: 20px; }
+        div { padding: 15px; border: 1px solid #ccc; border-radius: 8px; width: 45%; }
+        h2 { color: #007bff; }
+        .error { color: red; font-weight: bold; }
+        pre { background-color: #f4f4f4; padding: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="catalogo-container">
+        <h2>Catálogo de Produtos (Essencial)</h2>
+        <div id="catalogo-content">Carregando...</div>
+    </div>
+
+    <div id="recomendacoes-container">
+        <h2>Recomendações (Não-Essencial)</h2>
+        <div id="recomendacoes-content">Carregando...</div>
+    </div>
+
+    <script>
+        // Função para buscar dados e atualizar o HTML
+        function fetchData(url, contentElementId) {
+            const contentDiv = document.getElementById(contentElementId);
+            
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        // Se a resposta for 4xx ou 5xx, ela cai aqui
+                        throw new Error(`Erro ${response.status}: O serviço falhou.`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Sucesso!
+                    contentDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                })
+                .catch(error => {
+                    // Erro! (A Demo 2 vai cair aqui)
+                    console.error(error);
+                    contentDiv.innerHTML = `<p class="error">Falha ao carregar! (O serviço está offline?)</p>`;
+                });
+        }
+
+        // Carrega os dados quando a página abre
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData('/api/catalogo', 'catalogo-content');
+            fetchData('/api/recomendacoes', 'recomendacoes-content');
+        });
+    </script>
+</body>
+</html>
